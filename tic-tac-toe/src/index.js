@@ -113,9 +113,17 @@ class Game extends React.Component {
     }
 
     let status;
+    let allSquaresFilled = true;
+    current.squares.forEach((item, i) => {
+      if (item === null) {
+        allSquaresFilled = false;
+      }
+    });
 
     if (winner) {
       status = "Winner is : " + winner.player;
+    } else if (allSquaresFilled) {
+      status = "Draw!";
     } else {
       status = 'Next player: ' + (this.state.xIsNext ? "X" : "O");
     }
