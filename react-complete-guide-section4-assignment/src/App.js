@@ -48,7 +48,7 @@ class App extends Component {
         <ValidationComponent inputLength={this.state.inputChars.length}/>
 
         {this.state.inputChars.map((char, index) => {
-          return (<Char char={char} ind={index}, key={index} clickHandler={() => this.charClickedHandler(index)}/>);
+          return (<Char char={char} ind={index} key={index} clickHandler={() => this.charClickedHandler(index)}/>);
         })}
       </div>
     );
