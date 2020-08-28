@@ -101,21 +101,6 @@ class ContactData extends Component {
     };
 
     this.props.onOrderBurger(order);
-
-    // axios.post('/orders.json', order)
-    //   .then((response) => {
-    //     this.setState({
-    //       loading: false,
-    //       purchasing: false
-    //     });
-    //     this.props.history.push('/');
-    //   })
-    //   .catch((error) => {
-    //     this.setState({
-    //       loading: false,
-    //       purchasing: false
-    //     });
-    //   });
   }
 
   checkValidity(value, rules) {
