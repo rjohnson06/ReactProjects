@@ -21,6 +21,10 @@ class Map extends Component {
       {id: 1, location: null, type: null},
       {id: 2, location: null, type: null}
     ],
+    deskOwners: [
+      {userId: 1, deskId: 1}
+      {userId: 2, deskId: 2}
+    ],
     reservedTimes: [
       {startDate: new Date(), endDate: new Date(), userId: 1, deskId: 1},
       {startDate: new Date(), endDate: new Date(), userId: 2, deskId: 2}
@@ -63,6 +67,9 @@ class Map extends Component {
               onChange={(evt) => this.onViewAvailTimeChange(evt.target.value)} />
           </div>
         </div>
+        {this.state.desks.map(desk => {
+          <Desk occupied={}
+        })}
         <Desk occupied={true} name={"Ryan"} />
         <Desk occupied={false} name={"Sam"} />
         <Booker show={this.state.showBooker} />
