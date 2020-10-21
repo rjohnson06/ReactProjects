@@ -3,14 +3,24 @@ import Calendar from 'react-calendar';
 
 import Booker from './Booker/Booker';
 import Desk from './Desk/Desk';
+import Modal from '../UI/Modal/Modal';
 
 import classes from './Map.module.css';
+import bookerClasses from './Booker/Booker.module.css';
+import modalClasses from '../UI/Modal/Modal.module.css';
 
 import 'react-calendar/dist/Calendar.css';
 
 class Map extends Component {
+  // just a test function
+  addHoursToDate = function(date, h) {
+    date.setTime(date.getTime() + (h*60*60*1000));
+    return date;
+  };
+
   state = {
-    showBooker: false,
+    selectedDeskId: 1,
+    showBooker: true,
     viewDate: new Date(),
 
     users: [
@@ -22,13 +32,63 @@ class Map extends Component {
       {id: 2, location: null, type: null}
     ],
     deskOwners: [
-      {userId: 1, deskId: 1}
+      {userId: 1, deskId: 1},
       {userId: 2, deskId: 2}
     ],
     reservedTimes: [
-      {startDate: new Date(), endDate: new Date(), userId: 1, deskId: 1},
+      {startDate: this.addHoursToDate(new Date(), -4), endDate: this.addHoursToDate(new Date(), 4), userId: 1, deskId: 1},
       {startDate: new Date(), endDate: new Date(), userId: 2, deskId: 2}
     ]
+  };
+
+  // DataStore Queries
+
+  // desk + occupied, user.name
+  getDesksRenderableData = () => {
+    return this.state.desks.map(desk => {
+      const flattenedDesk = {...desk};
+
+      const ownerId = this.state.deskOwners.find(owner => owner.deskId === desk.id).userId;
+
+      flattenedDesk.ownerName =
+        this.state.users.find(user => user.userId === ownerId).name;
+
+      flattenedDesk.occupied = this.state.reservedTimes.filter(reservation => {
+        return reservation.deskId === flattenedDesk.id &&
+          this.state.viewDate > reservation.startDate &&
+          this.state.viewDate < reservation.endDate;
+      }).length > 0;
+
+      return flattenedDesk;
+    });
+  };
+
+  getDeskBookerData = (deskId) => {
+    return this.state.reservedTimes
+      .filter(reservation => {
+        return reservation.deskId === deskId;
+      })
+      .map(reservation => {
+        const flattenedUserReservation = {...reservation};
+        flattenedUserReservation.userName = this.state.users.find(user => user.userId === reservation.userId).name;
+
+        return flattenedUserReservation;
+      });
+  };
+  // End Datastore Queries
+
+  onDeskClicked = (id, evt) => {
+    console.log("desk clicked");
+    this.setState({
+      selectedDeskId: id,
+      showBooker: true
+    });
+  };
+
+  onBookerClosed = () => {
+    this.setState({
+      showBooker: false
+    });
   };
 
   onViewAvailCalendarChange = date => {
@@ -45,6 +105,8 @@ class Map extends Component {
   };
 
   render() {
+    const renderableDesks = this.getDesksRenderableData();
+
     return (
       <div>
         <div>
@@ -67,12 +129,16 @@ class Map extends Component {
               onChange={(evt) => this.onViewAvailTimeChange(evt.target.value)} />
           </div>
         </div>
-        {this.state.desks.map(desk => {
-          <Desk occupied={}
+        {renderableDesks.map(desk => {
+          return <Desk
+                  key={desk.id}
+                  occupied={desk.occupied}
+                  name={desk.ownerName}
+                  clicked={!this.state.showBooker ? (evt) => this.onDeskClicked(desk.id, evt) : () => {}} />
         })}
-        <Desk occupied={true} name={"Ryan"} />
-        <Desk occupied={false} name={"Sam"} />
-        <Booker show={this.state.showBooker} />
+        <Modal show={this.state.showBooker} modalClosed={this.onBookerClosed} classes={modalClasses.bookerModal}>
+          <Booker show={this.state.showBooker} date={this.state.viewDate} deskReservarions={this.getDeskBookerData(this.state.selectedDeskId)}/>
+        </Modal>
       </div>
     );
   }
