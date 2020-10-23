@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Calendar from 'react-calendar';
+import _ from 'lodash';
 
 import Booker from './Booker/Booker';
 import Desk from './Desk/Desk';
@@ -36,8 +37,8 @@ class Map extends Component {
       {userId: 2, deskId: 2}
     ],
     reservedTimes: [
-      {startDate: this.addHoursToDate(new Date(), -4), endDate: this.addHoursToDate(new Date(), 4), userId: 1, deskId: 1},
-      {startDate: new Date(), endDate: new Date(), userId: 2, deskId: 2}
+      {id: 1, startDate: this.addHoursToDate(new Date(), -4), endDate: this.addHoursToDate(new Date(), 4), userId: 1, deskId: 1},
+      {id: 2, startDate: new Date(), endDate: new Date(), userId: 2, deskId: 2}
     ]
   };
 
@@ -46,7 +47,7 @@ class Map extends Component {
   // desk + occupied, user.name
   getDesksRenderableData = () => {
     return this.state.desks.map(desk => {
-      const flattenedDesk = {...desk};
+      const flattenedDesk = _.cloneDeep(desk);
 
       const ownerId = this.state.deskOwners.find(owner => owner.deskId === desk.id).userId;
 
@@ -69,11 +70,33 @@ class Map extends Component {
         return reservation.deskId === deskId;
       })
       .map(reservation => {
-        const flattenedUserReservation = {...reservation};
+        const flattenedUserReservation = _.cloneDeep(reservation);
         flattenedUserReservation.userName = this.state.users.find(user => user.userId === reservation.userId).name;
 
         return flattenedUserReservation;
       });
+  };
+
+  updateReservation = (resId, startDate, endDate, userId) => {
+    const currentEntryInd = this.state.reservedTimes.findIndex(reservation => {
+      return resId === reservation.id;
+    });
+
+    const clone = _.cloneDeep(this.state.reservedTimes[currentEntryInd]);
+    clone.startDate = startDate;
+    clone.endDate = endDate;
+    clone.userId = userId
+
+    const sources = {};
+    sources[currentEntryInd] = clone;
+
+    this.setState({
+      reservedTimes: Object.assign([], this.state.reservedTimes, sources)
+    });
+  };
+
+  deleteReservation = (resId) => {
+
   };
   // End Datastore Queries
 
@@ -137,7 +160,11 @@ class Map extends Component {
                   clicked={!this.state.showBooker ? (evt) => this.onDeskClicked(desk.id, evt) : () => {}} />
         })}
         <Modal show={this.state.showBooker} modalClosed={this.onBookerClosed} classes={modalClasses.bookerModal}>
-          <Booker show={this.state.showBooker} date={this.state.viewDate} deskReservarions={this.getDeskBookerData(this.state.selectedDeskId)}/>
+          <Booker
+            show={this.state.showBooker}
+            date={this.state.viewDate}
+            deskReservations={this.getDeskBookerData(this.state.selectedDeskId)}
+            updateReservation={this.updateReservation} />
         </Modal>
       </div>
     );
