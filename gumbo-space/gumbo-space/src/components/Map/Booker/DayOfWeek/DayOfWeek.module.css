@@ -1,19 +1,16 @@
 .reservation {
-  background: rgba(110, 106, 224, .5);
+  background: rgba(110, 106, 224, .8);
   z-index: 999;
-  pointer-events: none;
   position: relative;
 }
 
 .reservationHandle {
-  height: 15px;
+  height: 30px;
   width: 100%;
-  background: red;
+  background: rgba(65, 105, 214, .5);
 }
 
 .reservationStartTimeHandle {
-  position: absolute;
-  top: 0;
 }
 
 .reservationEndTimeHandle {
@@ -30,6 +27,9 @@
 
   display: grid;
   grid-auto-rows: 30px;
+
+  user-select: none;
+  cursor: pointer;
 }
 
 .timeSlot {

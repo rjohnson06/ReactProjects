@@ -15,15 +15,31 @@ class Booker extends Component {
     resIdEdited: null
   };
 
-  timeSlotMouseEnter() {
+  // TODO : I'm in the process of hooking this up/calling this from the day of week component
+  timeSlotMouseEnter = (evt, timeStart, timeEnd) => {
+    // FSM type thing
+    if (this.state.editionState !== Booker.#editingState.changingStartTime &&
+      this.state.editionState !== Booker.#editingState.changingEndTime) {
+        return;
+      }
+
     //console.log("Timeslot mouse enter");
+    const reservation = this.props.deskReservations.find((res) => res.id === this.state.resIdEdited);
+
+    if (this.state.editionState === Booker.#editingState.changingStartTime) {
+      this.props.updateReservation(this.state.resIdEdited, timeStart, reservation.endDate, reservation.userId);
+    }
+
+    if (this.state.editionState === Booker.#editingState.changingEndTime) {
+      this.props.updateReservation(this.state.resIdEdited, reservation.startDate, timeEnd, reservation.userId);
+    }
   }
 
-  timeSlotMouseLeave() {
+  timeSlotMouseLeave = (evt, timeStart) => {
     //console.log("Timeslot mouse leave");
   }
 
-  bookerMouseDown(evt) {
+  bookerMouseDown = (evt) => {
     const x = evt.clientX;
     const y = evt.clientY;
 
@@ -31,27 +47,27 @@ class Booker extends Component {
       Array.from(document.querySelectorAll('[data-res-start'))
       .concat(Array.from(document.querySelectorAll('[data-res-end]')));
 
-    reservations.forEach((res, i) => {
-      console.log("change reservation prop");
-      res.parentElement.style["pointer-events"] = "auto";
-    });
+    //reservations.forEach((res, i) => {
+    //  console.log("change reservation prop");
+    //  res.parentElement.style["pointer-events"] = "auto";
+    //});
 
     const element = document.elementFromPoint(x, y);
 
-    reservations.forEach((res, i) => {
-      console.log("change reservation prop");
-      res.parentElement.style["pointer-events"] = "none";
-    });
+    //reservations.forEach((res, i) => {
+    //  console.log("change reservation prop");
+    //  res.parentElement.style["pointer-events"] = "none";
+    //});
 
     if (element.hasAttribute("data-res-start")) {
       this.setState({
         editionState: Booker.#editingState.changingStartTime,
-        resIdEdited: element.getAttribute("data-res-start");
+        resIdEdited: parseInt(element.getAttribute("data-res-start"))
       });
     } else if (element.hasAttribute("data-res-end")) {
       this.setState({
         editionState: Booker.#editingState.changingEndTime,
-        resIdEdited: element.getAttribute("data-res-start");
+        resIdEdited: parseInt(element.getAttribute("data-res-end"))
       });
     }
 
@@ -59,11 +75,14 @@ class Booker extends Component {
 
   }
 
-  bookerMouseUp() {
-    console.log("Booker mouse up");
+  bookerMouseUp = () => {
+    this.setState({
+      editionState: Booker.#editingState.default,
+      resIdEdited: null
+    });
   }
 
-  dayOfWeekMouseLeave() {
+  dayOfWeekMouseLeave = () => {
     console.log("Day of week mouse leave");
   }
 
