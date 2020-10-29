@@ -95,6 +95,22 @@ class Map extends Component {
     });
   };
 
+  createReservation = (startDate, endDate, userId, deskId) => {
+    const reservations = [
+      ...this.state.reservedTimes
+    ];
+
+    reservations.push({
+      id: reservations.length,
+      userId: userId,
+      startDate: startDate,
+      endDate: endDate,
+      deskId: deskId
+    });
+
+    return reservations.length;
+  };
+
   deleteReservation = (resId) => {
 
   };
@@ -161,10 +177,12 @@ class Map extends Component {
         })}
         <Modal show={this.state.showBooker} modalClosed={this.onBookerClosed} classes={modalClasses.bookerModal}>
           <Booker
-            show={this.state.showBooker}
             date={this.state.viewDate}
+            deskEditedId={this.state.selectedDeskId}
             deskReservations={this.getDeskBookerData(this.state.selectedDeskId)}
-            updateReservation={this.updateReservation} />
+            users={this.state.users}
+            updateReservation={this.updateReservation}
+            createReservation={this.createReservation} />
         </Modal>
       </div>
     );
